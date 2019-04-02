@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="org.ssmmaven7.dao.RolePermissionDao" >
+  	   <select id="findPermissionCodeByRoleId" parameterType="int" resultType="String">
+  	   	   select p.resourceCode 
+  	   	   from permission p, rolepermission rp
+  	   	   where rp.roleId = #{roleId} and p.permissionId = rp.permissionId  <!-- 等号右边应该放参数 -->
+  	   </select>
+  	   <select id="findPermissionUrlByRoleId" parameterType="int" resultType="String">
+  	   	   select p.url 
+  	   	   from permission p, rolepermission rp
+  	   	   where rp.roleId = #{roleId} and p.permissionId = rp.permissionId  <!-- 等号右边应该放参数 -->
+  	   </select>
+  	   <insert id="insertRolePermission" parameterType="org.ssmmaven7.model.RolePermission">
+  	   	   insert into rolepermission (roleId,permissionId)
+  	   	   values(#{roleId},#{permissionId})
+  	   </insert>
+  	   <delete id="deleteRolePermissionByRoleId" parameterType="int">
+  	   	    delete from rolepermission
+  	   	    where roleId = #{roleId}
+  	   </delete>
+  	   <delete id="deleteRolePermissionByRPId">
+  	   	    delete from rolepermission
+  	   	    where roleId=#{roleId} and permissionId=#{permissionId}
+  	   </delete>
+  </mapper>
+
+  

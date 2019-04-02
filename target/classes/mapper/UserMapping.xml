@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ssmmaven7.dao.UserDao">
+    <!-- 一定要写model的构造函数,而且一定要有带全参和不带参函数 -->
+    <resultMap type="org.ssmmaven7.model.User" id="userResultMap">
+    	<id column="userId" property="userId" jdbcType="INTEGER"/>
+    	<result column="userId" property="userId"/><!-- result中的内容才是返回值 -->
+    	<result column="userName" property="userName"/>
+    	<result column="phone" property="phone"/>
+    	<result column="email" property="email"/>
+    	<result column="address" property="address"/>
+    	<association property="role" javaType="org.ssmmaven7.model.Role">
+    		<id column="roleId" property="roleId"/>
+    		<result column="roleName" property="roleName"/>
+    	</association>
+    </resultMap>
+	<select id="findByUserId" parameterType="INTEGER" resultType="org.ssmmaven7.model.User">
+		select * from user where userId =#{userId}
+		<!-- userId为findByUserId(int userId)中的参数 -->
+		<!-- MyBatis使用的是SQL语句，所以user是表名而不是类User -->
+	</select>
+	
+	<select id="findByPwdNameRoleId" resultType="org.ssmmaven7.model.User">
+		select * from user where userPwd=#{userPwd} and userName=#{userName} and roleId = #{roleId}
+	</select>
+	
+	<select id="findAllUser" resultMap="userResultMap">
+		select 
+		    userId,userName,phone,email,address,roleName 
+		from 
+		    user u, role r
+		where r.roleId = u.roleId
+	</select>
+	<select id="findByUserName" resultType="org.ssmmaven7.model.User" parameterType="String">
+		select * from user where userName = #{userName}
+	</select>
+	
+	<select id="findUserByRoleId" parameterType="int" resultType="org.ssmmaven7.model.User">
+		select * from user where roleId = #{roleId}
+	</select>
+	
+	<insert id="addUser" parameterType="org.ssmmaven7.model.User"> <!-- 两行参数顺序对应，与User中参数字段顺序可 不一致-->
+		insert into user (roleId,userName,userPwd,phone,email,address)
+		values (#{roleId},#{userName},#{userPwd},#{phone},#{email},#{address})
+	</insert>
+	
+	<update id="updateUser">
+		update user
+		set userName=#{userName},phone=#{phone},email=${email},address=#{address}
+		where userId = #{userId}
+	</update>
+	<delete id="deleteUser" parameterType="int">
+		delete from user where userId = #{userId}
+	</delete>
+</mapper>

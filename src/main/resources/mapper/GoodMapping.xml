@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="org.ssmmaven7.dao.GoodDao">
+  	   <resultMap id="goodResultMap" type="org.ssmmaven7.model.Good">
+	  	  <id column="goodId" property="goodId" jdbcType="INTEGER"/>
+	  	  <result column="goodId" property="goodId"/>
+	  	  <result column="goodName" property="goodName"/>
+	  	  <result column="price" property="price"/>
+	  	  <result column="category" property="category"/>
+	  	  <result column="quantity" property="quantity"/>
+	  	  <result column="specification" property="specification"/>
+	  	  <result column="shelve" property="shelve"/>
+	  	  <association property="supplier" javaType="org.ssmmaven7.model.Supplier">   
+	  	  	  <id column="supplierId" property="supplierId"></id>
+	  	  	  <result column="supplierName" property="supplierName"/>
+	  	  	  <!-- 返回值resultMap中supplierName保存在List<Good>的supplier对象中，所以resultMap对应的还是Good，supplierName并没有破坏Good结构 -->
+	  	  </association>
+	   </resultMap>
+	   <insert id="insertGood" parameterType="org.ssmmaven7.model.Good" useGeneratedKeys="true" keyProperty="goodId">	
+ 			insert into good (code,goodName,price,category,quantity,supplierId,specification,shelve)
+ 			values (#{code},#{goodName},#{price},#{category},#{quantity},#{supplierId},#{specification},#{shelve})
+  	   </insert>
+  	   <!--仅对insert和update有用     useGeneratedKeys="true"设置主键自增, -->
+  	   <!-- mybatis中insert插入之后返回主键useGeneratedKeys="true" keyProperty="id" -->
+  	   <!-- 将要传入语句的参数的完全限定类名或别名， 如果不配置，mybatis会通过ParameterHandler 根据参数类型默认选择合适的typeHandler进行处理
+        	parameterType 主要指定参数类型，可以是int, short, long, string等类型，也可以是复杂类型（如对象） -->
+        	
+  	   <select id="findGoodById" parameterType="INTEGER" resultMap="goodResultMap">
+  	   	   select goodName,price,category,quantity,supplierName 
+  	   	   from good g, supplier s
+  	   	   where g.supplierId = s.supplierId and g.goodId = #{goodId}
+  	   	   <!-- 这里的good和supplier都是数据表，而不是实体类 -->
+  	   </select>
+  	   <select id="findGoodByCategory" resultMap="goodResultMap" parameterType="string">
+  	   		select goodId,goodName,price,g.category,quantity,supplierName,specification,shelve
+  	   	    from good g, supplier s
+  	   		where g.supplierId = s.supplierId and g.category = #{category}
+  	   </select>
+  	   <select id="findGoodByName" parameterType="String" resultMap="goodResultMap">
+  	   	   select goodId,goodName,price,g.category,quantity,supplierName,specification,shelve
+  	   	    from good g, supplier s
+  	   	    where g.supplierId = s.supplierId and goodName=#{goodName}
+  	   </select>
+       <delete id="deleteByGoodId" parameterType="INTEGER">
+  	   		delete from good where goodId = #{goodId}
+  	   </delete>
+
+  	   <update id="updateGood" >
+  	   	    update good
+  	   	    set quantity =quantity + #{quantity}
+  	   	    where goodId = #{goodId}
+  	   </update>
+  	   <select id="findAllGood" resultType="org.ssmmaven7.model.Good">
+  	   		select *
+  	   		from good g
+  	   </select>
+  </mapper>

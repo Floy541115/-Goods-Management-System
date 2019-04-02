@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="org.ssmmaven7.dao.RoleDao">
+  
+  	  <resultMap type="org.ssmmaven7.model.Role" id="rpResultMap">
+  	  	  <id column="roleId" property="roleId" jdbcType="INTEGER"/>
+  	  	  <result column="roleId" property="roleId"/>
+  	  	  <result column="roleName" property="roleName"/>
+  	  	  <collection property="permissions" ofType="org.ssmmaven7.model.Permission">
+  	  	  	  <id column="permissionId" property="permissionId"/>
+  	  	  	  <result column="permissionId" property="permissionId"/>
+  	  	  	  <result column="description" property="description"/>
+  	  	  	  <result column="resourceCode" property="resourceCode"/>
+  	  	  </collection> 
+  	  </resultMap>
+  
+  	  <select id="findAllRole" resultType="org.ssmmaven7.model.Role">
+  	  	  select * from role;
+  	  </select>
+  	  <delete id="deleteByRoleId" parameterType="int">
+  	  	  delete from role where roleId = #{roleId}
+  	  </delete>
+  	  <select id="findAllRoleAndPms" resultMap="rpResultMap">
+  	  	  select r.roleId,roleName,rp.permissionId,resourceCode,description
+  	  	  from role r, rolepermission rp, permission p
+  	  	  where r.roleId = rp.roleId and rp.permissionId = p.permissionId
+  	  </select>
+  	  <insert id="insertRole">
+  	  	  insert into role(roleName)
+  	  	  values(#{roleName})
+  	  </insert>
+  </mapper>

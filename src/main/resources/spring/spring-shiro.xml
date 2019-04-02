@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean id="userRealm" class="org.ssmmaven7.shiro.UserRealm"><!-- 配置用于授权和认证的realm -->
+	    <!-- <property name="credentialsMatcher" ref=""  								 自定义比对器，校验yoghurt输入信息是否正确   -->
+	    <property name="cachingEnabled" value="true"></property>							 
+		<property name="authorizationCachingEnabled" value="true"></property>	 <!-- 启用授权缓存，即缓存AuthorizationInfo的信息，默认false -->			 
+		<property name="authenticationCachingEnabled" value="true"></property>      <!-- 使用身份验证缓存，即缓存AuthenticationInfo信息，默认false -->
+	</bean>
+	<!-- 安全管理器 -->																				 
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<!-- <property name="authenticator" ref="authenticator"></property> -->
+		<property name="sessionManager" ref="sessionManager"></property>
+		<property name="cacheManager" ref="customCacheManager"></property>
+		<property name="realm" ref="userRealm"></property>
+	</bean>
+																							<!-- 要在IOC容器中使用shiro注解，必须先配置LifecycleBeanPostProcessor -->
+																							<!-- shiro生命周期处理器   4. 配置LifecycleBeanPostProcessor，可以自定义地来调用配置在Spring IOC容器中shiro bean的生命周期方法 -->
+  	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" /><!-- 启用IOC容器中使用shiro的注解，但必须在配置 lifecycleBeanPostProcessor才可以使用  -->
+  	 
+																						    <!-- 6.1 id必须和web.xml中配置的DelegatingFilterProxy的<filter-name>一致。 如果不一致，会抛出NoSuchBeanDefinitionException异常， -->
+																						    <!-- 因为shiro会在IOC容器中查找名称和<filter-name>值一致的filter bean -->
+																						    
+																						    <!-- 配置ShiroFilter -->
+																						    <!-- 6.1 id必须和web.xml中配置的DelegatingFilterProxy的<filter-name>一致。因为spring就是依靠名称来获取这个bean的,shiro会在IOC容器中查找名称和<filter-name>值一致的filter bean -->
+   
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+    	<property name="securityManager" ref="securityManager"></property>
+    	<property name="loginUrl" value="/login3.jsp"></property>							<!-- 登录页面，如果没有登录，访问任何页面都会跳转到该页面 -->
+    	<!--<property name="successUrl" value="/views/goodViews/goodList.jsp"></property>  登录成功后跳转都hello.jsp  --><!-- 有/表示相对地址，没有是绝对地址，即value就会是地址栏中的地址 -->
+    	<property name="unauthorizedUrl" value="/views/unauthorized.jsp"></property>					<!-- 认证未通过，perms[..]或roles[..]为通过，即经过认证但没有相应的权限则跳转至该页面 -->
+    
+    																						<!-- 配置哪些页面需要受保护  以及访问这些页面需要的权限 -->
+    	<property name="filterChainDefinitions">
+    		<value>
+    		 <!-- 	 /login.jsp = anon       访问login.jsp时访问anon的filter,但anon的filter其实是空的，不需要登录就可以浏览的页面就可以配置anon /role/deleteRole =  authc,perms["deleteRP" -->
+    			 /login3.jsp = anon     <!-- views路径已经在spring-mvc中配置为默认前缀 -->
+    			 /good/addGood** =authc, perms["good:add"]  <!-- 这样写执行addGood时不会认证登录 -->
+    			 /goodViews/addGoods.jsp = authc    <!-- 加上这句执行addGood才会去认证是否登录 -->
+     			 /rolePermission/deleteRolePermissionByRoleId** = authc, perms["rp:delete"]
+    			 /rolePermission/insertRolePermission** = authc, perms["rp:add"]
+    			 /rolePermission/deleteRole** = authc, perms["rp:delete"]
+    			 /rolePermission/insertRole** = authc, perms["rp:add"]
+    			 /rolePermission/insertPermission** = authc, perms["rp:add"]
+    			 /rolePermission/deletePermission** = authc, perms["rp:delete"]     <!-- **表示deletePermission的参数，如果有参数一定要带**-->
+    			 /user/logout = anon
+    			 /rolePermission.jsp = authc
+    		</value>
+    	</property>
+    </bean>
+    
+    <!-- 会话管理器 -->
+    <!-- 用户登录后就是一次会话，在退出之前， 该用户的所有信息（个人信息以及操作信息）都在会话中-->
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+    	 <!-- 设置超时时间 -->
+    	 <property name="globalSessionTimeout" value="1800000"></property>
+    	 <property name="deleteInvalidSessions" value="true"></property>
+		 <property name="sessionValidationSchedulerEnabled" value="true"/>
+         <property name="sessionIdCookieEnabled" value="true"/>
+    </bean>
+    
+    <!-- 缓存管理器  配置自定义的缓存管理器-->
+    <bean id="customCacheManager" class="org.ssmmaven7.shiro.CustomCacheManager">
+    	<property name="jedisPool" ref="jedisPool"></property>					<!-- jedisPool配置在spring-redis.xml中，但这里不需要import该配置文件 -->
+    </bean>
+ 	
+</beans>

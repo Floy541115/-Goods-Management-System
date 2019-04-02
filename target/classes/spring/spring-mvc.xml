@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd  
+            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+            http://www.springframework.org/schema/aop   
+            http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<mvc:annotation-driven/>   					 <!-- 处理器映射器  注解驱动注入   这个标签是一种简写方式，它会自动去注册处理器映射器-->  
+    <context:component-scan base-package="org.ssmmaven7.controller"></context:component-scan><!-- 让注解的处理器映射器能找到 Handler 控制器    让扫描controller包下所有使用注解的类 -->  
+    <context:component-scan base-package="org.ssmmaven7.aop"></context:component-scan>
+    <context:component-scan base-package="org.ssmmaven7.model"></context:component-scan>
+    
+    <mvc:default-servlet-handler/>
+    <import resource="classpath:spring/spring-shiro.xml"/>
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor">
+           <property name="proxyTargetClass" value="true"/> 
+           																					<!-- 不用在配置	<aop:config proxy-target-class="true"></aop:config> -->
+    </bean>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+	    </bean><!-- securityManager在spring-shiro中定义的 ，注意，这里配置了authorization权限，那么在shiro中就不能在配置，
+	    		否则相当于一个bean被多次加载，那么就会默认以jdk接口的形式动态事务管理，但实际上controller并没有实现接口，这样就会报错，要求我们以类的形式进行实物管理-->
+    
+   																  
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">		<!-- 视图解析器  配置jsp 显示ViewResolver--><!-- 定义跳转文件的前后缀 -->
+    	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+        <property name="prefix" value="/views/" />    										<!-- 跳转的页面在views包下 -->
+        <property name="suffix" value=".jsp"></property>    								<!-- 设置了跳转 的页面的后缀和它所在的文件夹，controller中只要返回页面名就可可以 -->
+    </bean>					
+    
+    <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>				<!-- 开启切面代理   使得spring认识@Aspect-->
+
+    
+ 
+</beans>

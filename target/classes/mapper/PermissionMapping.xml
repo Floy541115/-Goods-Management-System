@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+  <mapper namespace="org.ssmmaven7.dao.PermissionDao">
+  	  <insert id="insertPermission" parameterType="org.ssmmaven7.model.Permission">
+  	  	   insert into permission(url, description,resourceCode)
+  	  	   values(#{url}, #{description}, #{resourceCode})
+  	  </insert>
+  	  <delete id="deletePermissionById" parameterType="int">
+  	  	  delete from permission where permissionId = #{permissionId}
+  	  </delete>
+  	  <select id="findAllPermission" resultType="org.ssmmaven7.model.Permission">
+  	  	  select * from permission 
+  	  </select>
+  </mapper>

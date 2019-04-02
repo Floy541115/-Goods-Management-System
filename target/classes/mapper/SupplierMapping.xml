@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.ssmmaven7.dao.SupplierDao">
+	<insert id="insertSupplier" parameterType="org.ssmmaven7.model.Supplier">
+		insert into supplier(supplierName,address,startTime,personInCharge,phone,category)
+		values(#{supplierName}, #{address}, #{startTime}, #{personInCharge}, #{phone}, #{category})
+	</insert>
+	
+	<delete id="deleteBySupplierId" parameterType="INTEGER">
+		delete from supplier where supplierId = #{supplierId}
+	</delete>
+	
+	<update id="updatePhone">
+		update supplier 
+		set phone = #{phone}
+		where supplierId = #{supplierId}
+	</update>
+	<update id="updateAddress">
+		update supplier
+		set address = #{address}
+		where supplierId = #{supplierId}
+	</update>
+	<update id="updatePersonInCharge">
+		update supplier 
+		set personInCharge = #{personInCharge}
+	</update>
+	
+	<select id="findBySupplierName" parameterType="string" resultType="org.ssmmaven7.model.Supplier">
+		select * 
+		from supplier
+		where supplierName = #{supplierName}
+	</select>
+	<select id="findBySupplierId" parameterType="int" resultType="org.ssmmaven7.model.Supplier">
+		select * 
+		from supplier
+		where supplierId = #{supplierId}
+	</select>
+	<select id="findAllSupplier" resultType="org.ssmmaven7.model.Supplier">
+		select * from supplier 
+	</select>
+	<select id="findSupplierByCategory" parameterType="string" resultType="org.ssmmaven7.model.Supplier">
+		select * from supplier where category = #{category}
+	</select>
+</mapper>

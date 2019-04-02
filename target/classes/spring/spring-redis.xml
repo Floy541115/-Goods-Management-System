@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans  
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+       http://www.springframework.org/schema/context  
+       http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!--使用注解 -->
+    <context:annotation-config />
+
+    <!-- 加载redis配置文件 -->
+    <context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true"/>
+ 	
+ 	 
+    <!-- redis数据源 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+     	<property name="maxTotal" value="${redis.pool.maxActive}"/> <!-- 控制一个pool可分配多少个jedis实例 --> 
+        <property name="maxIdle" value="${redis.pool.maxIdle}"/> <!-- 控制一个pool最多有多少个状态为idle(空闲)的jedis实例 -->
+        <property name="minIdle" value="${redis.pool.minIdle}"/> <!-- 控制一个pool最少有多少个状态为idle(空闲)的jedis实例 -->
+        <property name="maxWaitMillis" value="${redis.pool.maxWait}"/><!-- 表示当borrow一个jedis实例时，最大的等待时间，如果超过等待时间，则直接抛出JedisConnectionException -->
+        <property name="testOnReturn" value="${redis.pool.testOnReturn}"/>
+        <property name="testOnBorrow" value="true" /><!-- 在获取连接时检查有效性，检查到无效链接时清理掉无效链接并重新获取新的连接 -->
+        <property name="testWhileIdle" value="true"></property><!-- 在空闲时检查有效性，检查到无效链接时，清理掉无效链接 并获取新的连接--> 
+    </bean> 
+    
+    <!-- Redis连接池管理工厂 
+    <bean id="jedisConnectionFactory"
+        class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" >
+        <property name="hostName" value="${redis.hostName}"></property>
+        <property name="port" value="${redis.port}"></property>
+        <property name="poolConfig" ref="jedisPoolConfig"></property>
+    </bean> 
+ 		 使用中间类解决RedisCache.jedisConnectionFactory的静态注入，从而使MyBatis实现第三方缓存  
+	<bean id="redisCacheTransfer" class="com.loan.security.cache.RedisCacheTransfer">
+		<property name="jedisConnectionFactory" ref="jedisConnectionFactory" />
+	</bean> 
+	 
+	<bean id="jdkSerializationRedisSerializer" 
+		class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer">
+	</bean>-->
+	
+	<bean id="stringRedisSerializer" 
+		class="org.springframework.data.redis.serializer.StringRedisSerializer">
+	</bean>
+
+
+	 
+	
+    <!-- <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactory" />
+        <property name="keySerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="valueSerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+        </property>
+    </bean>
+     JedisPool操作配置 -->
+ 
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig" />
+        <constructor-arg name="host" value="127.0.0.1"></constructor-arg>
+        <constructor-arg name="port" value="6379"></constructor-arg>
+    </bean>
+    
+    
+	<bean id="jedisClient" class="org.ssmmaven7.redis.JedisClient" />
+    <!-- 使用中间类解决RedisCache.jedisConnectionFactory的静态注入，从而使MyBatis 实现第三方缓存 -->
+</beans>  
